@@ -14,18 +14,39 @@ path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
 bootstrap.memory_lock: true
 network.host: 0.0.0.0
+#----------------------- BEGIN SECURITY AUTO CONFIGURATION -----------------------
+#
+# The following settings, TLS certificates, and keys have been automatically
+# generated to configure Elasticsearch security features on 26-07-2022 17:26:14
+#
+# --------------------------------------------------------------------------------
+
+# Enable security features
 xpack.security.enabled: true
+
 xpack.security.enrollment.enabled: true
+
+# Enable encryption for HTTP API client connections, such as Kibana, Logstash, and Agents
 xpack.security.http.ssl:
   enabled: true
   keystore.path: certs/http.p12
+
+# Enable encryption and mutual authentication between cluster nodes
 xpack.security.transport.ssl:
   enabled: true
   verification_mode: certificate
   keystore.path: certs/transport.p12
   truststore.path: certs/transport.p12
+
+# Allow HTTP API connections from anywhere
+# Connections are encrypted and require user authentication
 http.host: 0.0.0.0
-transport.host: 0.0.0.0" > /etc/elasticsearch/elasticsearch.yml
+
+# Allow other nodes to join the cluster from anywhere
+# Connections are encrypted and mutually authenticated
+transport.host: 0.0.0.0
+
+#----------------------- END SECURITY AUTO CONFIGURATION -------------------------" > /etc/elasticsearch/elasticsearch.yml
 
 echo "Enter number for JVM ram allocation: "
 read ram
@@ -39,7 +60,7 @@ echo "Is this the first node: y/n"
 read input
 
 if [ $input = "y" ]; then
-    cluster.initial_master_nodes: [es01] >> /etc/elasticsearch/elasticsearch.yml
+    echo "cluster.initial_master_nodes: [es01]" >> /etc/elasticsearch/elasticsearch.yml
     systemctl daemon-reload
     systemctl enable elasticsearch
     systemctl start elasticsearch
