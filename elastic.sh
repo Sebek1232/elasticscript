@@ -25,8 +25,7 @@ xpack.security.transport.ssl:
   keystore.path: certs/transport.p12
   truststore.path: certs/transport.p12
 http.host: 0.0.0.0
-transport.host: 0.0.0.0
-cluster.initial_master_nodes: [es01]" > /etc/elasticsearch/elasticsearch.yml
+transport.host: 0.0.0.0" > /etc/elasticsearch/elasticsearch.yml
 
 echo "Enter number for JVM ram allocation: "
 read ram
@@ -40,6 +39,7 @@ echo "Is this the first node: y/n"
 read input
 
 if [ $input = "y" ]; then
+    cluster.initial_master_nodes: [es01] >> /etc/elasticsearch/elasticsearch.yml
     systemctl daemon-reload
     systemctl enable elasticsearch
     systemctl start elasticsearch
@@ -52,7 +52,7 @@ if [ $input = "y" ]; then
 else
     echo "Enter Enrollement Token: "
     read token
-    /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token ${token}
+    $(/usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token ${token})
     systemctl daemon-reload
     systemctl enable elasticsearch
     systemctl start elasticsearch
