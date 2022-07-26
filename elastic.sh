@@ -24,7 +24,6 @@ xpack.security.transport.ssl:
   verification_mode: certificate
   keystore.path: certs/transport.p12
   truststore.path: certs/transport.p12
-cluster.initial_master_nodes: [es01]
 http.host: 0.0.0.0
 transport.host: 0.0.0.0" > /etc/elasticsearch/elasticsearch.yml
 
@@ -40,13 +39,14 @@ echo "Is this the first node: y/n"
 read input
 
 if [ $input = "y" ]; then
+    echo "cluster.initial_master_nodes: [es01]" >> /etc/elasticsearch/elasticsearch.yml
     systemctl daemon-reload
     systemctl enable elasticsearch
     systemctl start elasticsearch
     PASS=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic)
     KIB=$(/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana)
     NODE=$(/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node)
-    echo "Password: ${PASS}"
+    echo "${PASS}"
     echo "Kibana Token: ${KIB}"
     echo "Node Enrollement Token: ${NODE}"
 else
