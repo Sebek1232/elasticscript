@@ -37,7 +37,7 @@ echo "-Xms${ram}g
 -Xmx${ram}g" > /etc/elasticsearch/jvm.options.d/jvm.options
 
 echo "vm.max_map_count=262144" > /etc/sysctl.conf
-echo "LimitMEMLOCK=infinity" >> /usr/lib/systemd/system/elasticsearch.service
+sed -i '10i LimitMEMLOCK=infinity' /usr/lib/systemd/system/elasticsearch.service
 
 echo "Is this the first node: y/n"
 read input
@@ -46,7 +46,7 @@ if [ input = "y" ]; then
     systemctl daemon-reload
     systemctl enable elasticsearch
     systemctl start elasticsearch
-    systemctl status elasticsearch.service
+    echo "${systemctl status elasticsearch.service}"
     PASS="${/usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic}"
     KIB="${/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana}"
     NODE="${/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node}"
@@ -60,5 +60,4 @@ else
     systemctl daemon-reload
     systemctl enable elasticsearch
     systemctl start elasticsearch
-    systemctl status elasticsearch.service
-
+    echo "${systemctl status elasticsearch.service}"
