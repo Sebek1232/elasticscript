@@ -73,7 +73,7 @@ if [ $input = "y" ]; then
 else
     echo "Enter Enrollement Token: "
     read token
-    $(/usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token ${token})
+    /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token ${token}
     systemctl daemon-reload
     systemctl enable elasticsearch
     systemctl start elasticsearch
