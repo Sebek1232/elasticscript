@@ -24,7 +24,7 @@ xpack.security.transport.ssl:
   verification_mode: certificate
   keystore.path: certs/transport.p12
   truststore.path: certs/transport.p12
-cluster.initial_master_nodes: es01
+cluster.initial_master_nodes: [es01]
 http.host: 0.0.0.0
 transport.host: 0.0.0.0" > /etc/elasticsearch/elasticsearch.yml
 
