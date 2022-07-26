@@ -1,0 +1,39 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: otel-collector:4317
+  otlp/2:
+    protocols:
+      grpc:
+        endpoint: otel-collector:55680
+
+exporters:
+  otlp/elastic:
+    endpoint: 44.192.39.200:8200
+    insecure: true
+    headers:
+      Authorization: "Bearer Guesswhat567!"
+
+
+processors:
+  batch:
+
+extensions:
+  health_check:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [otlp/elastic]
+    metrics:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [otlp/elastic]
+    logs:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [otlp/elastic]
