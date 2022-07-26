@@ -1,11 +1,39 @@
-ersion: "2"
-services:
-  otel-collector:
-    image: otel/opentelemetry-collector:latest
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    ports:
-      - "13133:13133" # Health_check extension
-      - "4317:4317"   # OTLP gRPC receiver
-      - "55680:55680" # OTLP gRPC receiver alternative port
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+  otlp/2:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:55680
+
+exporters:
+  otlp/elastic:
+    endpoint: 44.192.39.200:8200
+    insecure: true
+    headers:
+      Authorization: "Bearer Guesswhat567!"
+
+
+processors:
+  batch:
+
+extensions:
+  health_check:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [otlp/elastic]
+    metrics:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [otlp/elastic]
+    logs:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [otlp/elastic]
