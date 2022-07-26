@@ -5,9 +5,11 @@ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://arti
 apt-get update 
 apt-get install elasticsearch
 
-echo "cluster.name: ec-cluster
-node.name: es01
-node.roles: [master, data]
+echo "Enter: <cluster.name> <node.name> <[node.role, node.role]>"
+read clusterName nodeName roles
+echo "cluster.name: $clusterName
+node.name: $nodeName
+node.roles: $roles
 path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
 bootstrap.memory_lock: true
@@ -28,3 +30,35 @@ cluster.initial_master_nodes:
   - es03
 http.host: 0.0.0.0
 transport.host: 0.0.0.0" > /etc/elasticsearch/elasticsearch.yml
+
+echo "Enter number for JVM ram allocation: "
+read ram
+echo "-Xms${ram}g
+-Xmx${ram}g" > /etc/elasticsearch/jvm.options.d/jvm.options
+
+echo "vm.max_map_count=262144" > /etc/sysctl.conf
+echo "LimitMEMLOCK=infinity" >> /usr/lib/systemd/system/elasticsearch.service
+
+echo "Is this the first node: y/n"
+read input
+
+if [ input = "y" ]; then
+    systemctl daemon-reload
+    systemctl enable elasticsearch
+    systemctl start elasticsearch
+    systemctl status elasticsearch.service
+    PASS="${/usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic}"
+    KIB="${/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana}"
+    NODE="${/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node}"
+    echo "Password: ${PASS}"
+    echo "Kibana Token: ${KIB}"
+    echo "Node Enrollement Token: ${NODE}"
+else
+    echo "Enter Enrollement Token: "
+    read token
+    /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token ${token}
+    systemctl daemon-reload
+    systemctl enable elasticsearch
+    systemctl start elasticsearch
+    systemctl status elasticsearch.service
+
